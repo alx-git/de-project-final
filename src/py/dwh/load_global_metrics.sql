@@ -1,24 +1,37 @@
-insert into KOVALCHUKALEXANDERGOOGLEMAILCOM__DWH.global_metrics 
-(date_update, currency_from, amount_total, cnt_transactions,
-avg_transactions_per_account, cnt_accounts_make_transactions)
-(with temp as (select 
-date_trunc('day', date_update) as date,
-currency_code,
-currency_code_with,
-currency_with_div
-from KOVALCHUKALEXANDERGOOGLEMAILCOM__STAGING.currencies
-where currency_code_with = 420)
-select 
-date_trunc('day', transaction_dt) as date_update,
-tr.currency_code as currency_from,
-(case when currency_with_div is not null then sum(amount)*currency_with_div else sum(amount) end) as amount_total,
-count(*) as cnt_transactions,
-count(*)/count(distinct account_number_from) as avg_transactions_per_account,
-count(distinct account_number_from) as cnt_accounts_make_transactions 
-from KOVALCHUKALEXANDERGOOGLEMAILCOM__STAGING.transactions as tr
-left join temp on (date_trunc('day', tr.transaction_dt) = temp.date and tr.currency_code = temp.currency_code)
-where tr.account_number_from >= 0 and tr.status ='done' and 
-date_trunc('day', tr.transaction_dt) < :current_update_dt
-and date_trunc('day', tr.transaction_dt) >= :latest_update_dt
-group by date_update, currency_from, currency_with_div 
-order by date_update, currency_from);
+INSERT INTO KOVALCHUKALEXANDERGOOGLEMAILCOM__DWH.global_metrics (
+	date_update
+	,currency_from
+	,amount_total
+	,cnt_transactions
+	,avg_transactions_per_account
+	,cnt_accounts_make_transactions
+	) (
+	WITH TEMP AS (
+		SELECT date_trunc('day', date_update) AS DATE
+			,currency_code
+			,currency_code_with
+			,currency_with_div
+		FROM KOVALCHUKALEXANDERGOOGLEMAILCOM__STAGING.currencies
+		WHERE currency_code_with = 420
+		) SELECT date_trunc('day', transaction_dt) AS date_update
+	,tr.currency_code AS currency_from
+	,(
+		CASE 
+			WHEN currency_with_div IS NOT NULL
+				THEN sum(amount) * currency_with_div
+			ELSE sum(amount)
+			END
+		) AS amount_total
+	,count(*) AS cnt_transactions
+	,count(*) / count(DISTINCT account_number_from) AS avg_transactions_per_account
+	,count(DISTINCT account_number_from) AS cnt_accounts_make_transactions FROM KOVALCHUKALEXANDERGOOGLEMAILCOM__STAGING.transactions AS tr LEFT JOIN TEMP ON (
+		date_trunc('day', tr.transaction_dt) = TEMP.DATE
+		AND tr.currency_code = TEMP.currency_code
+		) WHERE tr.account_number_from >= 0
+	AND tr.STATUS = 'done'
+	AND date_trunc('day', tr.transaction_dt) < :current_update_dt
+	AND date_trunc('day', tr.transaction_dt) >= :latest_update_dt GROUP BY date_update
+	,currency_from
+	,currency_with_div ORDER BY date_update
+	,currency_from
+	);

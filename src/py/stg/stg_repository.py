@@ -3,7 +3,7 @@ from datetime import datetime
 from logging import Logger
 
 from py.lib.pg_connect import PgConnect
-from py.lib.settings import StgTimeSettingsRepository
+from py.lib.time_settings import StgTimeSettingsRepository
 from py.lib.vertica_connect import VerticaConnect
 from py.stg.stg_loader import StgLoader
 from py.stg.stg_reader import StgReader

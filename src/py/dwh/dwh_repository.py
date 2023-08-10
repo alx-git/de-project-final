@@ -3,7 +3,7 @@ from datetime import datetime
 from logging import Logger
 
 from py.dwh.dwh_loader import DwhLoader
-from py.lib.settings import StgTimeSettingsRepository
+from py.lib.time_settings import StgTimeSettingsRepository
 from py.lib.vertica_connect import VerticaConnect
 
 

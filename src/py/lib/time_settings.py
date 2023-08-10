@@ -22,6 +22,8 @@ class StgTimeSettingsRepository:
             obj = cur.fetchone()
         return obj
 
+    #Saving latest database update time
+
     def save_setting(self, conn: Connection, database: str, update_ts: datetime) -> None:
         with conn.cursor() as cur:
             cur.execute(
